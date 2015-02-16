@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace mazeagent.core.Models
 {
@@ -156,6 +157,35 @@ namespace mazeagent.core.Models
             }
         }
 
+        public string[] AsAsciiArt()
+        {
+            var lines = new List<string>();
+            var builder = new StringBuilder();
+            var cells = this._cells;
+
+            // iterate the top line twice to render the upper border
+            for (int w = 0; w < this.Size.Width; w++)
+            {
+                if (cells[0, w].HasWallToThe(Directions.North)) builder.Append("_");
+            }
+            lines.Add(builder.ToString());
+            builder.Clear();
+
+            for (int h = 0; h < this.Size.Height; h++)
+            {
+                for (int w = 0; w < this.Size.Width; w++)
+                {
+                    builder.Append(cells[h, w].HasWallToThe(Directions.West) ? "|" : " ");
+                    builder.Append(cells[h, w].HasExit() ? "E" 
+                        : cells[h, w].HasWallToThe(Directions.South) ? "_" : " ");
+                    builder.Append(cells[h, w].HasWallToThe(Directions.East) ? "|" : " ");
+                }
+                lines.Add(builder.ToString());
+                builder.Clear();
+            }
+
+            return lines.ToArray();
+        }
     }
 
     class Position

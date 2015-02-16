@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using mazeagent.core.Creation;
 using NUnit.Framework;
 using mazeagent.core.Models;
 
@@ -89,6 +91,20 @@ namespace mazeagent.core.tests.Models
             var paths = maze.AccessibleNeighborsOf(maze.Start);
             Assert.AreEqual(1, paths.Count(), "should be a single path");
             Assert.IsTrue(paths.All(p => p.Direction == Directions.Exit), "only the path to the exit");
+        }
+    }
+
+    [TestFixture]
+    public class Visualize
+    {
+        [Test]
+        public void AsAsciiArt()
+        {
+            var maze = MazeBuilder.Build(new Size(8, 10));
+            foreach (var line in maze.AsAsciiArt())
+            {
+                Console.WriteLine(line);
+            }
         }
     }
 }
