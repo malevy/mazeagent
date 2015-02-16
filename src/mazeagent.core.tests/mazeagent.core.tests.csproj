@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Creation\MazeBuilderTests.cs" />
     <Compile Include="Models\CellTests.cs" />
     <Compile Include="Models\MazeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

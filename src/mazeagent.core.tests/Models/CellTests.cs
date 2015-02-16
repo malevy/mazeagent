@@ -32,6 +32,12 @@ namespace mazeagent.core.tests.Models
             Assert.IsTrue(this._cell.HasWallToThe(d), "There should be a wall to the " + d.ToString());
         }
 
+        [Test]
+        public void Then_HasAllWalls()
+        {
+            Assert.IsTrue(this._cell.HasAllWalls());
+        }
+
     }
 
     [TestFixture()]
@@ -52,7 +58,13 @@ namespace mazeagent.core.tests.Models
             Assert.IsTrue(this._cell.HasBorderToThe(Directions.North), "There should be a border to the north");
         }
 
-
+        [Test]
+        public void WhenRemovingAWall_TheWallIsRemoved()
+        {
+            Assert.IsTrue(this._cell.HasWallToThe(Directions.North), "should start with an existing wall");
+            this._cell.RemoveWallToThe(Directions.North);
+            Assert.IsFalse(this._cell.HasWallToThe(Directions.North), "the wall should be gone");
+        }
     }
 
 }
