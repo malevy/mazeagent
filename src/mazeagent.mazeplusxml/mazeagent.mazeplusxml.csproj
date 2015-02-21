@@ -39,9 +39,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\DebugTotalSize.cs" />
+    <Compile Include="Components\MazeCell.cs" />
+    <Compile Include="Components\MazeElement.cs" />
+    <Compile Include="Components\MazeError.cs" />
+    <Compile Include="Components\MazeItem.cs" />
+    <Compile Include="Components\MazeLinkCollection.cs" />
     <Compile Include="Serialization\IMazeWriter.cs" />
     <Compile Include="Components\MazeCollection.cs" />
-    <Compile Include="Components\Documents.cs" />
+    <Compile Include="Components\MazeDocuments.cs" />
     <Compile Include="Components\Link.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

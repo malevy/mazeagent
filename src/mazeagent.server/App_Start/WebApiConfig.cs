@@ -18,7 +18,7 @@ namespace mazeagent.server
 //                name: "DefaultApi",
 //                routeTemplate: "api/{controller}/{id}",
 //                defaults: new { id = RouteParameter.Optional }
-            );
+//            );
         }
     }
 }

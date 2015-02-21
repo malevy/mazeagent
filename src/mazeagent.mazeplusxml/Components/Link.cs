@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace mazeagent.mazeplusxml.Components
 {
     public class LinkRelation : IEquatable<LinkRelation>
     {
+        public override int GetHashCode()
+        {
+            return (Rel != null ? Rel.GetHashCode() : 0);
+        }
+
         public string Rel { get; private set; }
 
         private LinkRelation(string rel)
@@ -30,7 +36,7 @@ namespace mazeagent.mazeplusxml.Components
         public bool Equals(LinkRelation other)
         {
             if (null == other) return false;
-            if (object.ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(this, other)) return true;
             return this.Rel.Equals(other.Rel);
         }
 
@@ -70,17 +76,47 @@ namespace mazeagent.mazeplusxml.Components
         }
     }
 
-    public class CurrentLink : Link
+    public class CurrentLink : Link, IHasDebug, IHasTotal, IHasSide
     {
-        public string Debug { get; private set; }
-        public int Total { get; private set; }
-        public int Side { get; set; }
+        private int _total;
+        private int _side;
 
-        public CurrentLink(Uri href, string debug, int total, int side) : base(href, LinkRelation.Current)
+        public CurrentLink(Uri href) : base(href, LinkRelation.Current)
         {
-            Debug = debug;
-            Total = total;
-            Side = side;
         }
+
+        /// <summary>
+        /// debugging information supplied by the server
+        /// </summary>
+        public string Debug { get; set; }
+
+        /// <summary>
+        /// The total number of cells in the maze
+        /// </summary>
+        /// <exception cref="System.ArgumentOutOfRangeException">value;invalid cell count</exception>
+        public int Total
+        {
+            get { return _total; }
+            set
+            {
+                if (value < 0) throw new ArgumentOutOfRangeException("value", "invalid cell count");
+                _total = value;
+            }
+        }
+
+        /// <summary>
+        /// the number of cells on a single side of the maze
+        /// </summary>
+        /// <exception cref="System.ArgumentOutOfRangeException">value;invalid size</exception>
+        public int Side
+        {
+            get { return _side; }
+            set
+            {
+                if (value < 0) throw new ArgumentOutOfRangeException("value", "invalid size");
+                _side = value;
+            }
+        }
+
     }
 }

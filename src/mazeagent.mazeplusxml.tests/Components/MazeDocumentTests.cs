@@ -12,18 +12,9 @@ namespace mazeagent.mazeplusxml.tests.Components
         public void WhenAddingACollection_TheCollectionIsAdded()
         {
             var doc = new MazeDocument();
-            doc.AddCollection();
-            Assert.IsNotNull(doc.Collection, "the collection should be assigned");
-        }
-
-        [Test]
-        public void WhenAddingACollection_TheCollectionCanBeAssignedAUri()
-        {
-            var doc = new MazeDocument();
-            var collectionHref = new Uri("http://example.com");
-            doc.AddCollection(collectionHref);
-            Assert.IsNotNull(doc.Collection, "the collection should be assigned");
-            Assert.AreEqual(collectionHref, doc.Collection.Href, "the collection href was not set");
+            var collection = new MazeCollection(new Uri("http://example.com"));
+            doc.AddElement(collection);
+            Assert.IsNotNull(doc.GetElement<MazeCollection>(), "the collection should be assigned");
         }
 
         [Test]
@@ -31,8 +22,65 @@ namespace mazeagent.mazeplusxml.tests.Components
         public void WhenAddingTwoCollections_Throw()
         {
             var doc = new MazeDocument();
-            doc.AddCollection();
-            doc.AddCollection();
+            var collection = new MazeCollection(new Uri("http://example.com"));
+            doc.AddElement(collection);
+            collection = new MazeCollection(new Uri("http://example.com"));
+            doc.AddElement(collection);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ConstraintException))]
+        public void WhenAddingTwoItems_Throw()
+        {
+            var doc = new MazeDocument();
+            var item = new MazeItem(new Uri("http://example.com"), new Uri("http://example.com"));
+            doc.AddElement(item);
+            item = new MazeItem(new Uri("http://example.com"), new Uri("http://example.com"));
+            doc.AddElement(item);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ConstraintException))]
+        public void WhenAddingTwoCells_Throw()
+        {
+            var doc = new MazeDocument();
+            var cell = new MazeCell(new Uri("http://example.com"));
+            doc.AddElement(cell);
+            cell = new MazeCell(new Uri("http://example.com"));
+            doc.AddElement(cell);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ConstraintException))]
+        public void WhenAddingTwoErrorElements_Throw()
+        {
+            var doc = new MazeDocument();
+            var err = new MazeError(string.Empty);
+            doc.AddElement(err);
+            err = new MazeError(string.Empty);
+            doc.AddElement(err);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ConstraintException))]
+        public void WhenAddingAnErrorToANonEmptyDocument_Throw()
+        {
+            var doc = new MazeDocument();
+            var cell = new MazeCell(new Uri("http://example.com"));
+            doc.AddElement(cell);
+            var err = new MazeError(string.Empty);
+            doc.AddElement(err);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ConstraintException))]
+        public void WhenAddingACellToADocumentWithAnErrorElement_Throw()
+        {
+            var doc = new MazeDocument();
+            var err = new MazeError(string.Empty);
+            doc.AddElement(err);
+            var cell = new MazeCell(new Uri("http://example.com"));
+            doc.AddElement(cell);
         }
 
     }
