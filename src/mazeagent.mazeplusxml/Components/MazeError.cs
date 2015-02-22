@@ -28,5 +28,10 @@ namespace mazeagent.mazeplusxml.Components
             Constraints.MustBeEmpty(document);
             return true;
         }
+
+        public override void AcceptWriter(IMazeWriter writer)
+        {
+            writer.Write(this);
+        }
     }
 }

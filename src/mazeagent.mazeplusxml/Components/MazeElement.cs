@@ -6,6 +6,9 @@ namespace mazeagent.mazeplusxml.Components
     public abstract class MazeElement
     {
         public abstract bool CanAddElementToDocument(MazeDocument document);
+
+        public abstract void AcceptWriter(IMazeWriter writer);
+
     }
 
     public static class Constraints

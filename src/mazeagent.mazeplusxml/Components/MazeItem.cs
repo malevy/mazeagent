@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
 
 namespace mazeagent.mazeplusxml.Components
 {
@@ -41,6 +39,11 @@ namespace mazeagent.mazeplusxml.Components
             Constraints.NoErrorElement(document);
             Constraints.NoInstanceOf<MazeItem>(document);
             return true;
+        }
+
+        public override void AcceptWriter(IMazeWriter writer)
+        {
+            writer.Write(this);
         }
     }
 }

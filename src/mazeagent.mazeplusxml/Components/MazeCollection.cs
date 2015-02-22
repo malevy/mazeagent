@@ -24,5 +24,10 @@ namespace mazeagent.mazeplusxml.Components
             Constraints.NoInstanceOf<MazeCollection>(document);
             return true;
         }
+
+        public override void AcceptWriter(IMazeWriter writer)
+        {
+            writer.Write(this);
+        }
     }
 }

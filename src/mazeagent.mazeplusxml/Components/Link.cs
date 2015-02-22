@@ -53,6 +53,17 @@ namespace mazeagent.mazeplusxml.Components
             if (null == other) return false;
             return this.Equals(other);
         }
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            return this.Rel;
+        }
     }
 
     public class Link

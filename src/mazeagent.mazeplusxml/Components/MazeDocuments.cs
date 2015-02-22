@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace mazeagent.mazeplusxml.Components
 {
-    public class MazeDocument
+    public class MazeDocument : IEnumerable<MazeElement>
     {
         private readonly List<MazeElement> _elements = new List<MazeElement>();
 
@@ -64,6 +65,16 @@ namespace mazeagent.mazeplusxml.Components
             }
 
             return this;
+        }
+
+        public IEnumerator<MazeElement> GetEnumerator()
+        {
+            return this._elements.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }
