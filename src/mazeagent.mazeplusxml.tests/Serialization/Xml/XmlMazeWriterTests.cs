@@ -72,5 +72,94 @@ namespace mazeagent.mazeplusxml.tests.Serialization.Xml
             }
         }
 
+        [Test]
+        public void CanWriteAMinimalItem()
+        {
+            var item = new MazeItem(new Uri("http://example.com"), new Uri("http://example.com/42"));
+            using (var stringWriter = new StringWriter())
+            {
+                var writer = new XmlMazeWriter(stringWriter, GetTestSettings());
+                writer.Write(item);
+                stringWriter.Flush();
+                Assert.AreEqual("<item href=\"http://example.com/\"><link href=\"http://example.com/42\" rel=\"start\" /></item>", stringWriter.ToString(), "wrong output");
+            }
+        }
+
+        [Test]
+        public void CanWriteMinimalError()
+        {
+            var err = new MazeError("foo");
+            using (var stringWriter = new StringWriter())
+            {
+                var writer = new XmlMazeWriter(stringWriter, GetTestSettings());
+                writer.Write(err);
+                stringWriter.Flush();
+                Assert.AreEqual("<error><title>foo</title></error>", stringWriter.ToString(), "wrong output");
+            }
+        }
+
+        [Test]
+        public void WhenAnErrorHasCodeAndMessage_IncludeThem()
+        {
+            var err = new MazeError("foo","500","bar");
+            using (var stringWriter = new StringWriter())
+            {
+                var writer = new XmlMazeWriter(stringWriter, GetTestSettings());
+                writer.Write(err);
+                stringWriter.Flush();
+                Assert.AreEqual("<error><title>foo</title><code>500</code><message><![CDATA[bar]]></message></error>", stringWriter.ToString(), "wrong output");
+            }
+        }
+
+        [Test]
+        public void CanWriteMinimalCell()
+        {
+            var cell = new MazeCell(new Uri("http://example.com"));
+            using (var stringWriter = new StringWriter())
+            {
+                var writer = new XmlMazeWriter(stringWriter, GetTestSettings());
+                writer.Write(cell);
+                stringWriter.Flush();
+                Console.Write(stringWriter.ToString());
+                Assert.AreEqual("<cell href=\"http://example.com/\" />", stringWriter.ToString(), "wrong output");
+            }
+        }
+
+        [Test]
+        public void CanWriteFullCell()
+        {
+            var cell = new MazeCell(new Uri("http://example.com"))
+            {
+                Side = 10,
+                Total = 80
+            };
+
+            using (var stringWriter = new StringWriter())
+            {
+                var writer = new XmlMazeWriter(stringWriter, GetTestSettings());
+                writer.Write(cell);
+                stringWriter.Flush();
+                Console.Write(stringWriter.ToString());
+                Assert.AreEqual("<cell href=\"http://example.com/\" side=\"10\" total=\"80\" />", stringWriter.ToString(), "wrong output");
+            }
+        }
+
+        [Test]
+        public void WhenACellHasLinks_TheyAreRenderedAlso()
+        {
+            var mazeCell = new MazeCell(new Uri("http://example.com"));
+            mazeCell.AddLink(new Uri("http://example.com/42"), LinkRelation.East);
+
+
+            using (var stringWriter = new StringWriter())
+            {
+                var writer = new XmlMazeWriter(stringWriter, GetTestSettings());
+                writer.Write(mazeCell);
+                stringWriter.Flush();
+                Console.Write(stringWriter.ToString());
+                Assert.AreEqual("<cell href=\"http://example.com/\"><link href=\"http://example.com/42\" rel=\"east\" /></cell>", stringWriter.ToString(), "wrong output");
+            }
+        }
+
     }
 }

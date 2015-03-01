@@ -25,6 +25,7 @@ namespace mazeagent.mazeplusxml.Components
         public static LinkRelation North { get { return new LinkRelation("north"); } }
         public static LinkRelation South { get { return new LinkRelation("south"); } }
         public static LinkRelation West { get { return new LinkRelation("west"); } }
+        public static LinkRelation Start { get { return new LinkRelation("start"); } }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.

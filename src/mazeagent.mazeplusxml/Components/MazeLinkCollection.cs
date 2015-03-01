@@ -35,10 +35,11 @@ namespace mazeagent.mazeplusxml.Components
         /// <param name="uri">The URI.</param>
         /// <returns>A reference to the <see cref="MazeCollection"/> that the link was added to.</returns>
         /// <exception cref="System.ArgumentNullException">link</exception>
-        public MazeLinkCollection AddLink(Uri uri)
+        public MazeLinkCollection AddLink(Uri uri, LinkRelation rel)
         {
             if (uri == null) throw new ArgumentNullException("uri");
-            return this.AddLink(new Link(uri, LinkRelation.Maze));
+            return this.AddLink(new Link(uri, rel));
         }
+
     }
 }
