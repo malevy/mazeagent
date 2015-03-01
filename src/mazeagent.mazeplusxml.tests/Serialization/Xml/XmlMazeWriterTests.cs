@@ -2,7 +2,7 @@
 using System.IO;
 using System.Xml;
 using mazeagent.mazeplusxml.Components;
-using mazeagent.mazeplusxml.Components.Xml;
+using mazeagent.mazeplusxml.Serialization.Xml;
 using NUnit.Framework;
 
 namespace mazeagent.mazeplusxml.tests.Serialization.Xml

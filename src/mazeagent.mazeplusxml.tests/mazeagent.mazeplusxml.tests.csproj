@@ -45,6 +45,7 @@
     <Compile Include="Components\MazeCollectionTests.cs" />
     <Compile Include="Components\MazeDocumentTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\Xml\XmlMazeParserTests.cs" />
     <Compile Include="Serialization\Xml\XmlMazeWriterTests.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,14 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
+using System.Runtime.CompilerServices;
 
 namespace mazeagent.mazeplusxml.Components
 {
     public class LinkRelation : IEquatable<LinkRelation>
     {
-        public override int GetHashCode()
+        private static Dictionary<string, Func<LinkRelation>> _stringConversionMap = new Dictionary<string, Func<LinkRelation>>
         {
-            return (Rel != null ? Rel.GetHashCode() : 0);
-        }
+            {"collection", () => Collection},
+            {"current", () => Current},
+            {"east",()=>East},
+            {"exit",()=>Exit},
+            {"maze",()=>Maze},
+            {"north",()=>North},
+            {"south",()=>South},
+            {"west",()=>West},
+            {"start",()=>Start}
+
+        };
 
         public string Rel { get; private set; }
 
@@ -18,13 +29,21 @@ namespace mazeagent.mazeplusxml.Components
         }
 
         public static LinkRelation Collection { get { return new LinkRelation("collection");} }
+
         public static LinkRelation Current { get { return new LinkRelation("current"); } }
+
         public static LinkRelation East { get { return new LinkRelation("east"); } }
+
         public static LinkRelation Exit { get { return new LinkRelation("exit"); } }
+
         public static LinkRelation Maze { get { return new LinkRelation("maze"); } }
+
         public static LinkRelation North { get { return new LinkRelation("north"); } }
+
         public static LinkRelation South { get { return new LinkRelation("south"); } }
+
         public static LinkRelation West { get { return new LinkRelation("west"); } }
+
         public static LinkRelation Start { get { return new LinkRelation("start"); } }
 
         /// <summary>
@@ -55,6 +74,11 @@ namespace mazeagent.mazeplusxml.Components
             return this.Equals(other);
         }
 
+        public override int GetHashCode()
+        {
+            return (Rel != null ? Rel.GetHashCode() : 0);
+        }
+
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
@@ -64,6 +88,35 @@ namespace mazeagent.mazeplusxml.Components
         public override string ToString()
         {
             return this.Rel;
+        }
+
+        /// <summary>
+        /// Parses the specified string into a defined LinkRelation
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <exception cref="System.FormatException">
+        /// </exception>
+        public static LinkRelation Parse(string str)
+        {
+            if (string.IsNullOrWhiteSpace(str)) throw new FormatException("invalid value");
+            Func<LinkRelation> creationFunction;
+            if (!_stringConversionMap.TryGetValue(str.ToLower(), out creationFunction))
+            {
+                throw new FormatException(string.Format("Cannot convert {0} to a LinkRelation", str));
+            }
+            return creationFunction.Invoke();
+
+        }
+
+        /// <summary>
+        /// Determines whether the supplied string is a well-known rel.
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <returns></returns>
+        public static bool IsKnownRel(string str)
+        {
+            if (string.IsNullOrWhiteSpace(str)) return false;
+            return _stringConversionMap.ContainsKey(str.ToLower());
         }
     }
 

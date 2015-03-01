@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Xml;
+using mazeagent.mazeplusxml.Components;
 
-namespace mazeagent.mazeplusxml.Components.Xml
+namespace mazeagent.mazeplusxml.Serialization.Xml
 {
     public class XmlMazeWriter : IMazeWriter
     {

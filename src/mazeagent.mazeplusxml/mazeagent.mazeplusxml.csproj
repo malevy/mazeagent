@@ -50,6 +50,7 @@
     <Compile Include="Components\MazeDocuments.cs" />
     <Compile Include="Components\Link.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\Xml\XmlMazeParser.cs" />
     <Compile Include="Serialization\Xml\XmlMazeWriter.cs" />
   </ItemGroup>
   <ItemGroup />
