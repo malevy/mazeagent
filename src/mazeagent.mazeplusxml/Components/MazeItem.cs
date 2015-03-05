@@ -24,6 +24,14 @@ namespace mazeagent.mazeplusxml.Components
         public string Debug { get; set; }
 
         /// <summary>
+        /// Infrastructure use only.
+        /// </summary>
+        /// <param name="href">the href for the maze or game</param>
+        internal MazeItem(Uri href) : this(href, null)
+        {
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MazeItem"/> class.
         /// </summary>
         /// <param name="href">the href for the maze or game</param>
@@ -44,6 +52,11 @@ namespace mazeagent.mazeplusxml.Components
         public override void AcceptWriter(IMazeWriter writer)
         {
             writer.Write(this);
+        }
+
+        internal void SetStartUri(Uri startHref)
+        {
+            this.StartHref = startHref;
         }
     }
 }

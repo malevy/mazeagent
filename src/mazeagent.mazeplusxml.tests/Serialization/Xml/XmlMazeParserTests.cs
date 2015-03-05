@@ -72,6 +72,38 @@ namespace mazeagent.mazeplusxml.tests.Serialization.Xml
             AssertLink(link, new Uri("http://example.com"), LinkRelation.Maze);
         }
 
+        [Test]
+        public void CanParseMazeItem()
+        {
+            var source = new MazeDocument();
+            var mazeHref = new Uri("http://example.com/42");
+            var startHref = new Uri("http://example.com/42/1");
+            var item = new MazeItem(mazeHref, startHref);
+            source.AddElement(item);
+
+            var parser = new XmlMazeParser();
+            var doc = parser.Parse(new StringReader(this.SerializeMazeDocument(source)));
+            var parsedItem = doc.GetElement<MazeItem>();
+            Assert.AreEqual(mazeHref, parsedItem.Href, "the maze's href is wrong");
+            Assert.AreEqual(startHref, parsedItem.StartHref, "the starting href is wrong");
+        }
+
+        [Test]
+        public void WhenAMazeItemHasADebugElement_ItIsAttached()
+        {
+            var source = new MazeDocument();
+            var mazeHref = new Uri("http://example.com/42");
+            var startHref = new Uri("http://example.com/42/1");
+            var item = new MazeItem(mazeHref, startHref);
+            item.Debug = Guid.NewGuid().ToString();
+            source.AddElement(item);
+
+            var parser = new XmlMazeParser();
+            var doc = parser.Parse(new StringReader(this.SerializeMazeDocument(source)));
+            var parsedItem = doc.GetElement<MazeItem>();
+            Assert.AreEqual(item.Debug, parsedItem.Debug, "the debug element is wrong");
+        }
+
 
     }
 }

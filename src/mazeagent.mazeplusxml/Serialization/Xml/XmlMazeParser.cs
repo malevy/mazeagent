@@ -18,7 +18,7 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
             };
 
             MazeDocument mazeDocument = null;
-            MazeLinkCollection currentLinkCollection = null;
+            MazeElement currentParentElement = null;
             string href = null;
             using (var xmlReader = XmlReader.Create(reader, settings))
             {
@@ -39,16 +39,43 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                             href = ReadRequiredAttribute(xmlReader, "href");
                             var collection = new MazeCollection(new Uri(href));
                             mazeDocument.AddElement(collection);
-                            currentLinkCollection = collection;
+                            currentParentElement = collection;
+                            break;
+
+                        case "item":
+                            AssertHaveMaze(mazeDocument);
+                            if (mazeDocument.Contains<MazeItem>()) throw new FormatException("Encountered multiple ITEM elements");
+                            href = ReadRequiredAttribute(xmlReader, "href");
+                            var item = new MazeItem(new Uri(href));
+                            mazeDocument.AddElement(item);
+                            currentParentElement = item;
                             break;
 
                         case "link":
-                            if (null == currentLinkCollection) throw new FormatException("Encountered element LINK without a prior to COLLECTION or ITEM");
+                            if (null == currentParentElement) throw new FormatException("Encountered element LINK without a prior to COLLECTION or ITEM");
                             href = ReadRequiredAttribute(xmlReader, "href");
+                            var uri = new Uri(href);
                             var rel = ReadRequiredAttribute(xmlReader, "rel");
                             if (LinkRelation.IsKnownRel(rel))
                             {
-                                currentLinkCollection.AddLink(new Uri(href), LinkRelation.Parse(rel));
+                                var linkRelation = LinkRelation.Parse(rel);
+                                if (currentParentElement is MazeLinkCollection)
+                                {
+                                    ((MazeLinkCollection) currentParentElement).AddLink(uri, linkRelation);
+                                }
+                                else if (currentParentElement is MazeItem && LinkRelation.Start.Equals(linkRelation))
+                                {
+                                    ((MazeItem) currentParentElement).SetStartUri(uri);
+                                }
+                            }
+                            break;
+
+                        case "debug":
+                            var debugValue = xmlReader.ReadString();
+                            var debugHolder = currentParentElement as IHasDebug;
+                            if (null != debugHolder)
+                            {
+                                debugHolder.Debug = debugValue;
                             }
                             break;
                     }
