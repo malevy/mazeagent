@@ -159,7 +159,7 @@ namespace mazeagent.mazeplusxml.tests.Serialization.Xml
         public void CanParseMinimalError()
         {
             var source = new MazeDocument();
-            var error = new MazeError("");
+            var error = new MazeError();
             source.AddElement(error);
 
             var parser = new XmlMazeParser();
@@ -172,7 +172,8 @@ namespace mazeagent.mazeplusxml.tests.Serialization.Xml
         public void WhenTheErrorHasATitleElement_IncludeIt()
         {
             var source = new MazeDocument();
-            var error = new MazeError("the title");
+            var error = new MazeError();
+            error.AddTitle("the title");
             source.AddElement(error);
 
             var parser = new XmlMazeParser();
@@ -185,7 +186,9 @@ namespace mazeagent.mazeplusxml.tests.Serialization.Xml
         public void WhenTheErrorHasACodeElement_IncludeIt()
         {
             var source = new MazeDocument();
-            var error = new MazeError("the title", "the code");
+            var error = new MazeError();
+            error.AddTitle("the title")
+                .AddCode("the code");
             source.AddElement(error);
 
             var parser = new XmlMazeParser();
@@ -198,7 +201,10 @@ namespace mazeagent.mazeplusxml.tests.Serialization.Xml
         public void WhenTheErrorHasAMessageElement_IncludeIt()
         {
             var source = new MazeDocument();
-            var error = new MazeError("the title", "the code", "the message");
+            var error = new MazeError();
+            error.AddTitle("the title")
+                .AddCode("the code")
+                .AddMessage("the message");
             source.AddElement(error);
 
             var parser = new XmlMazeParser();
@@ -212,7 +218,7 @@ namespace mazeagent.mazeplusxml.tests.Serialization.Xml
         {
             var source = new MazeDocument();
             var href = new Uri("http://example.com/42/1");
-            var error = new MazeError("the title",null, null, href);
+            var error = new MazeError(href);
             source.AddElement(error);
 
             var parser = new XmlMazeParser();

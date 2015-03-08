@@ -9,12 +9,37 @@ namespace mazeagent.mazeplusxml.Components
         public string Message { get; private set; }
         public Uri Href { get; private set; }
 
-        public MazeError(string title, string code = "", string message = "", Uri href = null)
+
+        public MazeError()
+        {
+        }
+
+        public MazeError(Uri href) : this()
+        {
+            Href = href;
+        }
+
+        public MazeError(string title, Uri href) : this(href)
         {
             Title = title;
-            Code = code;
-            Message = message;
-            Href = href;
+        }
+
+        public MazeError AddCode(string code)
+        {
+            this.Code = code;
+            return this;
+        }
+
+        public MazeError AddMessage(string message)
+        {
+            this.Message = message;
+            return this;
+        }
+
+        public MazeError AddTitle(string title)
+        {
+            this.Title = title;
+            return this;
         }
 
         public override bool CanAddElementToDocument(MazeDocument document)

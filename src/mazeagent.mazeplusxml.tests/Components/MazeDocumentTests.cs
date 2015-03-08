@@ -55,9 +55,9 @@ namespace mazeagent.mazeplusxml.tests.Components
         public void WhenAddingTwoErrorElements_Throw()
         {
             var doc = new MazeDocument();
-            var err = new MazeError(string.Empty);
+            var err = new MazeError();
             doc.AddElement(err);
-            err = new MazeError(string.Empty);
+            err = new MazeError();
             doc.AddElement(err);
         }
 
@@ -68,7 +68,7 @@ namespace mazeagent.mazeplusxml.tests.Components
             var doc = new MazeDocument();
             var cell = new MazeCell(new Uri("http://example.com"));
             doc.AddElement(cell);
-            var err = new MazeError(string.Empty);
+            var err = new MazeError();
             doc.AddElement(err);
         }
 
@@ -77,7 +77,7 @@ namespace mazeagent.mazeplusxml.tests.Components
         public void WhenAddingACellToADocumentWithAnErrorElement_Throw()
         {
             var doc = new MazeDocument();
-            var err = new MazeError(string.Empty);
+            var err = new MazeError();
             doc.AddElement(err);
             var cell = new MazeCell(new Uri("http://example.com"));
             doc.AddElement(cell);

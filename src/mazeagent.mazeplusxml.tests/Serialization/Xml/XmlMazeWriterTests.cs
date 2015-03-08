@@ -88,7 +88,8 @@ namespace mazeagent.mazeplusxml.tests.Serialization.Xml
         [Test]
         public void CanWriteMinimalError()
         {
-            var err = new MazeError("foo");
+            var err = new MazeError();
+            err.AddTitle("foo");
             using (var stringWriter = new StringWriter())
             {
                 var writer = new XmlMazeWriter(stringWriter, GetTestSettings());
@@ -101,7 +102,10 @@ namespace mazeagent.mazeplusxml.tests.Serialization.Xml
         [Test]
         public void WhenAnErrorHasCodeAndMessage_IncludeThem()
         {
-            var err = new MazeError("foo","500","bar");
+            var err = new MazeError();
+            err.AddTitle("foo")
+                .AddCode("500")
+                .AddMessage("bar");
             using (var stringWriter = new StringWriter())
             {
                 var writer = new XmlMazeWriter(stringWriter, GetTestSettings());

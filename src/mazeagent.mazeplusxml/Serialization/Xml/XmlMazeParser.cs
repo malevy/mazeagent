@@ -81,7 +81,7 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                             {
                                 uri = new Uri(value);
                             }
-                            var err = new MazeError("",null, null, uri);
+                            var err = new MazeError(uri);
                             mazeDocument.AddElement(err);
                             currentParentElement = err;
                             break;
@@ -121,20 +121,18 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                             var errorElement = currentParentElement as MazeError;
                             if (null != errorElement)
                             {
-                                Expression<Func<MazeError, string>> propertyExpression = null;
                                 switch (xmlReader.Name.ToLower())
                                 {
                                     case "title":
-                                        propertyExpression = et => et.Title;
+                                        errorElement.AddTitle(value);
                                         break;
                                     case "code":
-                                        propertyExpression = et => et.Code;
+                                        errorElement.AddCode(value);
                                         break;
                                     case "message":
-                                        propertyExpression = et => et.Message;
+                                        errorElement.AddMessage(value);
                                         break;
                                 }
-                                this.SetPrivateProperty(errorElement, propertyExpression, value);
                             }
                             break;
                     }
