@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 
 namespace mazeagent.mazeplusxml.Components
 {
@@ -15,6 +14,12 @@ namespace mazeagent.mazeplusxml.Components
             Title = title;
             Code = code;
             Message = message;
+        }
+
+        public void AddLink(Uri href, LinkRelation rel)
+        {
+            var link = new Link(href, rel);
+            this.AddLink(link);
         }
 
         public void AddLink(Link link)

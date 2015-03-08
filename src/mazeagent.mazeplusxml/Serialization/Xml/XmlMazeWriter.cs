@@ -106,6 +106,7 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                 this._writer.WriteCData(error.Message);
                 this._writer.WriteEndElement();
             }
+            if (null != error.Link) this.Write(error.Link);
             this._writer.WriteEndElement();
             this._writer.Flush();
         }

@@ -1,11 +1,15 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Globalization;
 using System.IO;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Xml;
 using mazeagent.mazeplusxml.Components;
 
 namespace mazeagent.mazeplusxml.Serialization.Xml
 {
-    public class XmlMazeParser
+    public class XmlMazeParser : IXmlMazeParser
     {
         public MazeDocument Parse(TextReader reader)
         {
@@ -19,13 +23,13 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
 
             MazeDocument mazeDocument = null;
             MazeElement currentParentElement = null;
-            string href = null;
             using (var xmlReader = XmlReader.Create(reader, settings))
             {
                 while (xmlReader.Read())
                 {
                     if (!xmlReader.IsStartElement()) continue;
 
+                    string href = null;
                     switch (xmlReader.Name.ToLower())
                     {
                         case "maze":
@@ -51,6 +55,31 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                             currentParentElement = item;
                             break;
 
+                        case "cell":
+                            AssertHaveMaze(mazeDocument);
+                            if (mazeDocument.Contains<MazeCell>()) throw new FormatException("Encountered multiple CELL elements");
+                            href = ReadRequiredAttribute(xmlReader, "href");
+                            var cell = new MazeCell(new Uri(href));
+
+                            string s;
+                            if (ReadOptionalAttribute(xmlReader, "debug", out s)) cell.Debug = s;
+
+                            int i;
+                            if (ReadOptionalAttribute(xmlReader, "total", out i)) cell.Total = i;
+                            if (ReadOptionalAttribute(xmlReader, "side", out i)) cell.Side = i;
+
+                            mazeDocument.AddElement(cell);
+                            currentParentElement = cell;
+                            break;
+
+                        case "error":
+                            AssertHaveMaze(mazeDocument);
+                            if (mazeDocument.Contains<MazeError>()) throw new FormatException("Encountered multiple ERROR elements");
+                            var err = new MazeError("");
+                            mazeDocument.AddElement(err);
+                            currentParentElement = err;
+                            break;
+
                         case "link":
                             if (null == currentParentElement) throw new FormatException("Encountered element LINK without a prior to COLLECTION or ITEM");
                             href = ReadRequiredAttribute(xmlReader, "href");
@@ -62,6 +91,10 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                                 if (currentParentElement is MazeLinkCollection)
                                 {
                                     ((MazeLinkCollection) currentParentElement).AddLink(uri, linkRelation);
+                                }
+                                else if (currentParentElement is MazeError)
+                                {
+                                    ((MazeError)currentParentElement).AddLink(uri, linkRelation);
                                 }
                                 else if (currentParentElement is MazeItem && LinkRelation.Start.Equals(linkRelation))
                                 {
@@ -78,6 +111,30 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                                 debugHolder.Debug = debugValue;
                             }
                             break;
+
+                        case "title":
+                        case "code":
+                        case "message":
+                            var value = xmlReader.ReadString();
+                            var errorElement = currentParentElement as MazeError;
+                            if (null != errorElement)
+                            {
+                                Expression<Func<MazeError, string>> propertyExpression = null;
+                                switch (xmlReader.Name.ToLower())
+                                {
+                                    case "title":
+                                        propertyExpression = et => et.Title;
+                                        break;
+                                    case "code":
+                                        propertyExpression = et => et.Code;
+                                        break;
+                                    case "message":
+                                        propertyExpression = et => et.Message;
+                                        break;
+                                }
+                                this.SetPrivateProperty(errorElement, propertyExpression, value);
+                            }
+                            break;
                     }
 
 
@@ -87,6 +144,16 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
             return mazeDocument;
         }
 
+        private void SetPrivateProperty<T,P>(T target, Expression<Func<T,P>> propertyExpression, object value) where T : MazeElement
+        {
+            var expression = (MemberExpression) propertyExpression.Body;
+            var property = expression.Member.Name;
+
+            typeof(T)
+                .GetProperty(property)
+                .SetValue(target, value, BindingFlags.NonPublic | BindingFlags.SetProperty, null, null, CultureInfo.CurrentCulture);
+        }
+
         private string ReadRequiredAttribute(XmlReader reader, string attributeName)
         {
             var val = reader.GetAttribute(attributeName);
@@ -94,10 +161,32 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
             return val;
         }
 
-        private string ReadOptionalAttribute(XmlReader reader, string attributeName)
+        private bool ReadOptionalAttribute<T>(XmlReader reader, string attributeName, out T value)
         {
+            value = default(T);
             var val = reader.GetAttribute(attributeName);
-            return val;
+            if (null == val) return false;
+
+            TypeConverter converter = TypeDescriptor.GetConverter(typeof (T));
+            object convertedValue;
+            try
+            {
+                convertedValue = converter.ConvertFromString(val);
+            }
+            catch (Exception e)
+            {
+                if (e is NotSupportedException || e is InvalidCastException || e is FormatException)
+                {
+                    return false;
+                }
+                if (e.InnerException is FormatException)
+                {
+                    return false;
+                }
+                throw;
+            }
+            value = (T) convertedValue;
+            return true;
         }
 
         private static void AssertHaveMaze(MazeDocument mazeDocument)
