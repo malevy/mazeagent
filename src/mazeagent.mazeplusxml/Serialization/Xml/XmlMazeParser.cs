@@ -30,6 +30,8 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                     if (!xmlReader.IsStartElement()) continue;
 
                     string href = null;
+                    string value;
+                    Uri uri = null;
                     switch (xmlReader.Name.ToLower())
                     {
                         case "maze":
@@ -75,7 +77,11 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                         case "error":
                             AssertHaveMaze(mazeDocument);
                             if (mazeDocument.Contains<MazeError>()) throw new FormatException("Encountered multiple ERROR elements");
-                            var err = new MazeError("");
+                            if (this.ReadOptionalAttribute(xmlReader, "href", out value))
+                            {
+                                uri = new Uri(value);
+                            }
+                            var err = new MazeError("",null, null, uri);
                             mazeDocument.AddElement(err);
                             currentParentElement = err;
                             break;
@@ -83,7 +89,7 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                         case "link":
                             if (null == currentParentElement) throw new FormatException("Encountered element LINK without a prior to COLLECTION or ITEM");
                             href = ReadRequiredAttribute(xmlReader, "href");
-                            var uri = new Uri(href);
+                            uri = new Uri(href);
                             var rel = ReadRequiredAttribute(xmlReader, "rel");
                             if (LinkRelation.IsKnownRel(rel))
                             {
@@ -91,10 +97,6 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                                 if (currentParentElement is MazeLinkCollection)
                                 {
                                     ((MazeLinkCollection) currentParentElement).AddLink(uri, linkRelation);
-                                }
-                                else if (currentParentElement is MazeError)
-                                {
-                                    ((MazeError)currentParentElement).AddLink(uri, linkRelation);
                                 }
                                 else if (currentParentElement is MazeItem && LinkRelation.Start.Equals(linkRelation))
                                 {
@@ -115,7 +117,7 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                         case "title":
                         case "code":
                         case "message":
-                            var value = xmlReader.ReadString();
+                            value = xmlReader.ReadString();
                             var errorElement = currentParentElement as MazeError;
                             if (null != errorElement)
                             {

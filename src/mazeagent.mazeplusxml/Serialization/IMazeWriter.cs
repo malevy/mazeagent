@@ -7,7 +7,6 @@
         void Write(MazeItem item);
         void Write(MazeCell cell);
         void Write(MazeError error);
-        void Write(CurrentLink link);
         void Write(Link link);
     }
 }

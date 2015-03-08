@@ -211,16 +211,15 @@ namespace mazeagent.mazeplusxml.tests.Serialization.Xml
         public void WhenTheErrorHasALinkAttribute_IncludeIt()
         {
             var source = new MazeDocument();
-            var error = new MazeError("the title");
-            var link = new Link(new Uri("http://example.com/42/1"), LinkRelation.Current);
-            error.AddLink(link);
+            var href = new Uri("http://example.com/42/1");
+            var error = new MazeError("the title",null, null, href);
             source.AddElement(error);
 
             var parser = new XmlMazeParser();
             var doc = parser.Parse(new StringReader(this.SerializeMazeDocument(source)));
             var parsedError = doc.GetElement<MazeError>();
-            Assert.That(parsedError.Link, Is.Not.Null, "the link property is not set");
-            Assert.That(parsedError.Link.Href, Is.EqualTo(link.Href), "the link was not set properly");
+            Assert.That(parsedError.Href, Is.Not.Null, "the link property is not set");
+            Assert.That(parsedError.Href, Is.EqualTo(href), "the href was not set properly");
         }
 
     }

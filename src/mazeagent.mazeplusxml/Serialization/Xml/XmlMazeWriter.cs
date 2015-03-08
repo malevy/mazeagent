@@ -98,6 +98,7 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
         public void Write(MazeError error)
         {
             this._writer.WriteStartElement("error");
+            if (null != error.Href) this._writer.WriteAttributeString("href", error.Href.ToString());
             if (!string.IsNullOrWhiteSpace(error.Title)) this._writer.WriteElementString("title", error.Title);
             if (!string.IsNullOrWhiteSpace(error.Code)) this._writer.WriteElementString("code", error.Code);
             if (!string.IsNullOrWhiteSpace(error.Message))
@@ -106,14 +107,8 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
                 this._writer.WriteCData(error.Message);
                 this._writer.WriteEndElement();
             }
-            if (null != error.Link) this.Write(error.Link);
             this._writer.WriteEndElement();
             this._writer.Flush();
-        }
-
-        public void Write(CurrentLink link)
-        {
-            throw new NotImplementedException();
         }
 
         public void Write(Link link)

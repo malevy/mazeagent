@@ -7,25 +7,14 @@ namespace mazeagent.mazeplusxml.Components
         public string Title { get; private set; }
         public string Code { get; private set; }
         public string Message { get; private set; }
-        public Link Link { get; private set; }
+        public Uri Href { get; private set; }
 
-        public MazeError(string title, string code = "", string message = "")
+        public MazeError(string title, string code = "", string message = "", Uri href = null)
         {
             Title = title;
             Code = code;
             Message = message;
-        }
-
-        public void AddLink(Uri href, LinkRelation rel)
-        {
-            var link = new Link(href, rel);
-            this.AddLink(link);
-        }
-
-        public void AddLink(Link link)
-        {
-            if (link == null) throw new ArgumentNullException("link");
-            this.Link = link;
+            Href = href;
         }
 
         public override bool CanAddElementToDocument(MazeDocument document)
