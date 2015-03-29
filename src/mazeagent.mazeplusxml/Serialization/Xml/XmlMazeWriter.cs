@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Xml;
 using mazeagent.mazeplusxml.Components;
 
@@ -18,7 +19,11 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
             if (target == null) throw new ArgumentNullException("target");
             this._writer = (null != settings)
                 ? XmlWriter.Create(target, settings)
-                : XmlWriter.Create(target);
+                : XmlWriter.Create(target, new XmlWriterSettings
+                {
+                    Indent = true,
+                    Encoding = Encoding.UTF8
+                });
         }
 
         public void Write(MazeDocument mazeDocument)

@@ -23,6 +23,13 @@ namespace mazeagent.core.Models
             this.ID = Guid.NewGuid().ToString();
         }
 
+        private Cell(Memento memento)
+        {
+            this.Borders = (Directions) memento.Borders;
+            this.Walls = (Directions) memento.Walls;
+            this.ID = memento.ID;
+        }
+
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
@@ -103,5 +110,30 @@ namespace mazeagent.core.Models
             return this.HasBorderToThe(Directions.Exit);
         }
 
+        /// <summary>
+        /// Save off the state of the cell so that it can be restored later
+        /// </summary>
+        /// <returns></returns>
+        public Memento CreateMemento()
+        {
+            return new Memento
+            {
+                Borders = (int) this.Borders,
+                Walls = (int) this.Walls,
+                ID = this.ID
+            };
+        }
+
+        public static Cell FromMememto(Memento m)
+        {
+            return new Cell(m);
+        }
+
+        public class Memento
+        {
+            public int Walls { get; set; }
+            public int Borders { get; set; }
+            public string ID { get; set; }
+        }
     }
 }

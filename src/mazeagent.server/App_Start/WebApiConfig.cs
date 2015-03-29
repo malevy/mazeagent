@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
+﻿using System.Web.Http;
+using System.Web.Http.ExceptionHandling;
+using mazeagent.server.Infrastructure;
 
 namespace mazeagent.server
 {
@@ -9,16 +8,18 @@ namespace mazeagent.server
     {
         public static void Register(HttpConfiguration config)
         {
-            // Web API configuration and services
+            config.Services.Replace(typeof(IExceptionHandler), new ApiExceptionHandler());
 
-            // Web API routes
             config.MapHttpAttributeRoutes();
 
-//            config.Routes.MapHttpRoute(
-//                name: "DefaultApi",
-//                routeTemplate: "api/{controller}/{id}",
-//                defaults: new { id = RouteParameter.Optional }
-//            );
+            // this route will catch everything that is not covered by a known route
+            // and return a 404.
+            config.Routes.MapHttpRoute(
+                name: "everything-else",
+                routeTemplate: "api/{*url}",
+                defaults: new {controller = "ErrorApi", action = "Handle404"}
+                );
+
         }
     }
 }

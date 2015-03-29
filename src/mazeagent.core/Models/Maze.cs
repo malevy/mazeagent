@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace mazeagent.core.Models
@@ -15,9 +15,19 @@ namespace mazeagent.core.Models
         /// the maze always starts in the upper left and exists in teh lower right.
         /// </remarks>
         private Cell[,] _cells;
+
+        /// <summary>
+        /// A map of a cell to its position in the maze
+        /// </summary>
         private readonly Dictionary<Cell, Position> _cellPositionIndex = new Dictionary<Cell, Position>();
 
+        /// <summary>
+        /// A map of cell IDs
+        /// </summary>
+        private readonly Dictionary<string, Cell> _cellIndex = new Dictionary<string, Cell>(); 
+
         public Size Size { get; private set; }
+        public string ID { get; private set; }
 
         /// <summary>
         /// Gets the entry point to the maze.
@@ -30,10 +40,17 @@ namespace mazeagent.core.Models
             get { return this._cells[0, 0]; }
         }
 
+        protected Maze(int height, int width)
+        {
+            this.Size = new Size(height, width);
+            this._cells = new Cell[this.Size.Height, this.Size.Width];
+        }
+
         public Maze(Size size)
         {
             this.Size = size;
 
+            this.ID = DateTime.UtcNow.ToString("yyyyMMddHHmmssf");
             InitializeCellCollection();
             this.SetBorders();
         }
@@ -46,7 +63,18 @@ namespace mazeagent.core.Models
                 {
                     var cell = new Cell();
                     this._cells[h,w] = cell;
-                    this._cellPositionIndex.Add(cell, new Position(w,h));
+                }
+
+            this.BuildIndexes();
+        }
+
+        private void BuildIndexes()
+        {
+            for (var h = 0; h < this.Size.Height; h++)
+                for (var w = 0; w < this.Size.Width; w++)
+                {
+                    this._cellPositionIndex.Add(this._cells[h, w], new Position(w, h));
+                    this._cellIndex.Add(this._cells[h, w].ID, this._cells[h, w]);
                 }
         }
 
@@ -110,7 +138,7 @@ namespace mazeagent.core.Models
             var position = this._cellPositionIndex[cell];
             if (!cell.HasBorderToThe(Directions.North))
             {
-                yield return new Edge(Directions.North, this._cells[position.Y - 1, position.X]); ;
+                yield return new Edge(Directions.North, this._cells[position.Y - 1, position.X]);
             }
             if (!cell.HasBorderToThe(Directions.East))
             {
@@ -124,6 +152,23 @@ namespace mazeagent.core.Models
             {
                 yield return new Edge(Directions.West, this._cells[position.Y, position.X - 1]);
             }
+        }
+
+        /// <summary>
+        /// the list of accessible neighbors. Meaning that there should not be a wall between
+        /// the specified cell and the neighbor.
+        /// </summary>
+        /// <param name="id">The ID of a cell.</param>
+        /// <returns></returns>
+        public IEnumerable<Edge> AccessibleNeighborsOf(string id)
+        {
+            Cell c;
+            if (!this._cellIndex.TryGetValue(id, out c))
+            {
+                throw new ArgumentOutOfRangeException("id", "Cell not found");
+            }
+
+            return this.AccessibleNeighborsOf(c);
         }
 
         /// <summary>
@@ -186,17 +231,61 @@ namespace mazeagent.core.Models
 
             return lines.ToArray();
         }
-    }
 
-    class Position
-    {
-        public int X { get; private set; }
-        public int Y { get; private set; }
-
-        public Position(int x, int y)
+        public Memento CreateMemento()
         {
-            X = x;
-            this.Y = y;
+            var state = new Memento
+            {
+                MazeHeight = this.Size.Height,
+                MazeWidth = this.Size.Width,
+                ID = this.ID
+            };
+
+            var cellMementos = new List<Tuple<int, int, Cell.Memento>>(this.Size.Height * this.Size.Width);
+
+            for (var y = 0; y < this.Size.Height; y++)
+                for (var x = 0; x < this.Size.Width; x++)
+                {
+                    cellMementos.Add(new Tuple<int, int, Cell.Memento>(x, y, this._cells[y, x].CreateMemento()));
+                }
+            state.Cells = cellMementos.ToArray();
+
+            return state;
         }
+
+        public static Maze FromMemento(Memento savedState)
+        {
+            var maze = new Maze(savedState.MazeHeight, savedState.MazeWidth) {ID = savedState.ID};
+            savedState.Cells.ToList().ForEach(m =>
+            {
+                maze._cells[m.Item2, m.Item1] = Cell.FromMememto(m.Item3);
+            });
+            maze.BuildIndexes();
+            return maze;
+        }
+
+        class Position
+        {
+            public int X { get; private set; }
+            public int Y { get; private set; }
+
+            public Position(int x, int y)
+            {
+                X = x;
+                this.Y = y;
+            }
+        }
+
+        public class Memento
+        {
+            public string ID { get; set; }
+            public int MazeHeight { get; set; }
+            public int MazeWidth { get; set; }
+            public Tuple<int, int, Cell.Memento>[] Cells { get; set; }
+        }
+
     }
+
+
+
 }
