@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using mazeagent.core.Models;
 using mazeagent.mazeplusxml.Components;
 using mazeagent.mazeplusxml.Serialization.Xml;
@@ -13,6 +14,7 @@ using mazeagent.server.Storage;
 
 namespace mazeagent.server.Controllers.Api
 {
+    [EnableCors("*","","GET")]
     [RoutePrefix("api/mazes")]
     public class MazesController : ApiController
     {

@@ -20,6 +20,7 @@ namespace mazeagent.server
                 defaults: new {controller = "ErrorApi", action = "Handle404"}
                 );
 
+            config.EnableCors();
         }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace mazeagent.server.Controllers.Api
 {
+    [EnableCors("*", "", "GET")]
     public class ErrorApiController : ApiController
     {
         public HttpResponseMessage Handle404(HttpRequestMessage request)
