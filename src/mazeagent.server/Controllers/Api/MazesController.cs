@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -110,11 +111,19 @@ namespace mazeagent.server.Controllers.Api
                 return this.RenderErrorDocument("The requested cell was not found or the maze may have been retired.", null, HttpStatusCode.NotFound);
             }
 
-            foreach (var neighbor in neighbors)
+            foreach (var neighbor in neighbors.Where(c => c.Direction != Directions.Exit))
             {
                 mazeCell.AddLink(
                     linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID, neighbor.Cell.ID)),
                     neighbor.Direction.AsLinkRelation());
+            }
+
+            if (neighbors.Any(c => c.Direction == Directions.Exit))
+            {
+                // the exit link returns the url with the entrance to the maze    
+                mazeCell.AddLink(
+                    linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID)),
+                    Directions.Exit.AsLinkRelation());
             }
 
             doc.AddElement(mazeCell);
