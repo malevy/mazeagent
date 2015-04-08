@@ -10,6 +10,11 @@ namespace mazeagent.mazeplusxml.Components
         private readonly List<MazeElement> _elements = new List<MazeElement>();
 
         /// <summary>
+        /// The URI for this instance of the document
+        /// </summary>
+        public Uri Self { get; set; }
+
+        /// <summary>
         /// The number of elements attached to the document
         /// </summary>
         /// <value>
@@ -18,6 +23,22 @@ namespace mazeagent.mazeplusxml.Components
         public int Count
         {
             get { return this._elements.Count; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MazeDocument"/> class.
+        /// </summary>
+        public MazeDocument()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MazeDocument"/> class.
+        /// </summary>
+        /// <param name="self">The URI for this instance of the document.</param>
+        public MazeDocument(Uri self)
+        {
+            Self = self;
         }
 
         /// <summary>

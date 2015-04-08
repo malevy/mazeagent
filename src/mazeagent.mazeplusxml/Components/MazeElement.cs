@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using mazeagent.mazeplusxml.Serialization;
 
 namespace mazeagent.mazeplusxml.Components
 {

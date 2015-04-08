@@ -1,6 +1,7 @@
 ﻿using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
 using mazeagent.server.Infrastructure;
+using mazeagent.server.Infrastructure.MediaFormatters;
 
 namespace mazeagent.server
 {
@@ -9,6 +10,8 @@ namespace mazeagent.server
         public static void Register(HttpConfiguration config)
         {
             config.Services.Replace(typeof(IExceptionHandler), new ApiExceptionHandler());
+            config.Formatters.Insert(0, new MazeXmlMediaFormatter()); // set as the first formatter
+            config.Formatters.Insert(1, new CollectionJsonMediaFormatter());
 
             config.MapHttpAttributeRoutes();
 

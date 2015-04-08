@@ -8,7 +8,7 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
 {
     public class XmlMazeWriter : IMazeWriter
     {
-        private readonly XmlWriter _writer;
+        private XmlWriter _writer;
 
         public XmlMazeWriter(TextWriter target) : this(target, null)
         {
@@ -129,6 +129,14 @@ namespace mazeagent.mazeplusxml.Serialization.Xml
             this._writer.WriteAttributeString("rel", rel.ToString());
             this._writer.WriteEndElement();
             this._writer.Flush();
+        }
+
+        public void Dispose()
+        {
+            if (null == this._writer) return;
+            this._writer.Flush();
+            this._writer.Close();
+            this._writer = null;
         }
     }
 }

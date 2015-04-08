@@ -183,6 +183,8 @@
     </Compile>
     <Compile Include="Helpers\LinkBuilder.cs" />
     <Compile Include="Infrastructure\ApiExceptionHandler.cs" />
+    <Compile Include="Infrastructure\MediaFormatters\CollectionJsonMediaFormatter.cs" />
+    <Compile Include="Infrastructure\MediaFormatters\MazeXmlMediaFormatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Storage\MazeStorage.cs" />

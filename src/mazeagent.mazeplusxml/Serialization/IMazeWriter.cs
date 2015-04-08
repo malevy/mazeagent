@@ -1,6 +1,9 @@
-﻿namespace mazeagent.mazeplusxml.Components
+﻿using System;
+using mazeagent.mazeplusxml.Components;
+
+namespace mazeagent.mazeplusxml.Serialization
 {
-    public interface IMazeWriter
+    public interface IMazeWriter : IDisposable
     {
         void Write(MazeDocument mazeDocument);
         void Write(MazeCollection collection);
