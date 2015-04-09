@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using mazeagent.mazeplusxml.Components;
@@ -24,6 +25,7 @@ namespace mazeagent.mazeplusxml.Serialization.CollectionJson
         {
             if (mazeDocument == null) throw new ArgumentNullException("mazeDocument");
             this._vm = new CollectionJsonVeiwModel();
+            this._vm.title = "MazeAgent";
 
             var self = _requestUri ?? mazeDocument.Self;
             if (null != self)
@@ -145,6 +147,7 @@ namespace mazeagent.mazeplusxml.Serialization.CollectionJson
             }
 
             public string version { get { return "1.0"; } }
+            public string title { get; set; }
             public string href { get; set; }
             public List<Item> items { get; private set; } 
             public List<Link> links { get; private set; }
@@ -164,6 +167,8 @@ namespace mazeagent.mazeplusxml.Serialization.CollectionJson
 
             public class Link
             {
+                private string _prompt;
+
                 public Link()
                 {
                 }
@@ -180,11 +185,25 @@ namespace mazeagent.mazeplusxml.Serialization.CollectionJson
 
                 public string rel { get; set; }
                 public string href { get; set; }
-                public string prompt { get; set; }
+
+                public string prompt
+                {
+                    get
+                    {
+                        if (string.IsNullOrWhiteSpace(this._prompt))
+                        {
+                            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(this.rel);
+                        }
+                        return this._prompt;
+                    }
+                    set { _prompt = value; }
+                }
             }
 
             public class ItemData
             {
+                private string _prompt;
+
                 public ItemData(string name, string value)
                 {
                     this.name = name;
@@ -193,7 +212,19 @@ namespace mazeagent.mazeplusxml.Serialization.CollectionJson
 
                 public string name { get; set; }
                 public string value { get; set; }
-                public string prompt { get; set; }
+
+                public string prompt
+                {
+                    get
+                    {
+                        if (string.IsNullOrWhiteSpace(this._prompt))
+                        {
+                            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(this.name);
+                        }
+                        return this._prompt;
+                    }
+                    set { _prompt = value; }
+                }
             }
 
             public class Item
