@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace mazeagent.core.Models
@@ -165,7 +164,7 @@ namespace mazeagent.core.Models
             Cell c;
             if (!this._cellIndex.TryGetValue(id, out c))
             {
-                throw new ArgumentOutOfRangeException("id", "Cell not found");
+                throw new ArgumentOutOfRangeException(nameof(id), "Cell not found");
             }
 
             return this.AccessibleNeighborsOf(c);

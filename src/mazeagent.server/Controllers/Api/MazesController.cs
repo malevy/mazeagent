@@ -8,6 +8,7 @@ using System.Web.Http.Cors;
 using mazeagent.core.Models;
 using mazeagent.mazeplusxml.Components;
 using mazeagent.server.Helpers;
+using mazeagent.server.Models.Output;
 using mazeagent.server.Storage;
 
 namespace mazeagent.server.Controllers.Api
@@ -33,14 +34,22 @@ namespace mazeagent.server.Controllers.Api
         public HttpResponseMessage GetMazes(HttpRequestMessage request)
         {
             var currentMaze = MazeRepository.Instance.CurrentMaze;
-
             var linkBuilder = new LinkBuilder(request);
-            var doc = new MazeDocument(request.RequestUri);
-            var collection = new MazeCollection(linkBuilder.ResolveApplicationUri(new Uri(RoutePrefix, UriKind.Relative)));
-            collection.AddLink(linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID)));
-            doc.AddElement(collection);
 
-            return Request.CreateResponse(HttpStatusCode.OK, doc);
+            var mazeVm =
+                new MazeVm(linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID)))
+                {
+                    Start =
+                        linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID,
+                            currentMaze.Start.ID)),
+                    Length = currentMaze.Size.Height,
+                    Width = currentMaze.Size.Width
+                };
+
+            var mazeCollection = new MazeCollectionVm(request.RequestUri);
+            mazeCollection.Mazes.Add(mazeVm);
+
+            return Request.CreateResponse(HttpStatusCode.OK, mazeCollection);
         }
 
         /// <summary>
@@ -59,21 +68,22 @@ namespace mazeagent.server.Controllers.Api
             var currentMaze = MazeRepository.Instance.CurrentMaze;
             if (mazeid != currentMaze.ID)
             {
-                var errorDoc = this.RenderErrorDocument("The requested maze was not found. The maze may have been retired.", null);
-                errorDoc.Self = request.RequestUri;
+                var errorDoc = new MazeErrorVm(request.RequestUri, "The requested maze was not found. The maze may have been retired."); 
                 return Request.CreateResponse(HttpStatusCode.NotFound, errorDoc);
             }
 
             var linkBuilder = new LinkBuilder(request);
-            var doc = new MazeDocument(request.RequestUri);
-            var mazeItem =
-                new MazeItem(
-                    linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID)),
-                    linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID, currentMaze.Start.ID)));
+            var mazeVm =
+                new MazeVm(linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID)))
+                {
+                    Start =
+                        linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID,
+                            currentMaze.Start.ID)),
+                    Length = currentMaze.Size.Height,
+                    Width = currentMaze.Size.Width
+                };
 
-            doc.AddElement(mazeItem);
-
-            return Request.CreateResponse(HttpStatusCode.OK, doc);
+            return Request.CreateResponse(HttpStatusCode.OK, mazeVm);
         }
 
         /// <summary>
@@ -93,14 +103,12 @@ namespace mazeagent.server.Controllers.Api
             var currentMaze = MazeRepository.Instance.CurrentMaze;
             if (mazeId != currentMaze.ID)
             {
-                var errorDoc = this.RenderErrorDocument("The requested maze was not found. The maze may have been retired.",null);
-                errorDoc.Self = request.RequestUri;
+                var errorDoc = new MazeErrorVm(request.RequestUri, "The requested maze was not found. The maze may have been retired.");
                 return Request.CreateResponse(HttpStatusCode.NotFound, errorDoc);
             }
 
             var linkBuilder = new LinkBuilder(request);
-            var doc = new MazeDocument(request.RequestUri);
-            var mazeCell = new MazeCell(linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID, cellId)));
+            var cell = new MazeCellVm(linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID, cellId)));
 
             IEnumerable<Maze.Edge> neighbors;
             try
@@ -109,29 +117,28 @@ namespace mazeagent.server.Controllers.Api
             }
             catch (ArgumentOutOfRangeException)
             {
-                var errorDoc  = this.RenderErrorDocument("The requested cell was not found or the maze may have been retired.", null);
-                errorDoc.Self = request.RequestUri;
+                var errorDoc = new MazeErrorVm(request.RequestUri, "The requested cell was not found or the maze may have been retired.");
                 return Request.CreateResponse(HttpStatusCode.NotFound, errorDoc);
             }
 
             foreach (var neighbor in neighbors.Where(c => c.Direction != Directions.Exit))
             {
-                mazeCell.AddLink(
+                var link = new LinkVm(
                     linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID, neighbor.Cell.ID)),
-                    neighbor.Direction.AsLinkRelation());
+                    neighbor.Direction.ToString());
+                cell.Links.Add(link);
             }
 
             if (neighbors.Any(c => c.Direction == Directions.Exit))
             {
                 // the exit link returns the url with the entrance to the maze    
-                mazeCell.AddLink(
+                var link = new LinkVm(
                     linkBuilder.ResolveApplicationUri(this.RelativeUriFromString(RoutePrefix, currentMaze.ID)),
-                    Directions.Exit.AsLinkRelation());
+                    Directions.Exit.ToString());
+                cell.Links.Add(link);
             }
 
-            doc.AddElement(mazeCell);
-
-            return Request.CreateResponse(HttpStatusCode.OK, doc);
+            return Request.CreateResponse(HttpStatusCode.OK, cell);
         }
 
         /// <summary>
@@ -147,29 +154,6 @@ namespace mazeagent.server.Controllers.Api
             };
             throw new HttpResponseException(response);
         }
-
-        private MazeDocument RenderErrorDocument(string title, string message)
-        {
-            var doc = new MazeDocument();
-            var errorElement = new MazeError(title, null);
-            if (!string.IsNullOrWhiteSpace(message)) errorElement.AddMessage(message);
-
-            doc.AddElement(errorElement);
-            return doc;
-        }
-
-//        private HttpResponseMessage MazeToHttpResponseMessage(MazeDocument doc, HttpStatusCode statusCode = HttpStatusCode.OK)
-//        {
-//            var writer = new StringWriter();
-//            var mazeWriter = new XmlMazeWriter(writer);
-//            mazeWriter.Write(doc);
-//            var response = new HttpResponseMessage(statusCode)
-//            {
-//                Content = new StringContent(writer.ToString())
-//            };
-//            response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.amundsen.maze+xml");
-//            return response;
-//        }
 
     }
 
